@@ -27,8 +27,8 @@ class ProductController extends AbstractController
     {
         $product = $productRepository->find($id);
         if($product){
-            $jsonProductList = $serializer->serialize($product, 'json');
-            return new JsonResponse($jsonProductList, Response::HTTP_OK, [], true);
+            $jsonProduct = $serializer->serialize($product, 'json');
+            return new JsonResponse($jsonProduct, Response::HTTP_OK, [], true);
         }
         return new JsonResponse(null, Response::HTTP_NOT_FOUND);
         
