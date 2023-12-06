@@ -31,6 +31,11 @@ class Product
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $datePublish = null;
+    
+    public function __construct()
+    {
+        $this->setDatePublish(new \DateTimeImmutable());
+    }
 
     public function getId(): ?int
     {
