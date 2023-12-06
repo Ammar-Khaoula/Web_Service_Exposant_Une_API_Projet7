@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -30,5 +31,14 @@ class UserController extends AbstractController
             return new JsonResponse($jsonUser, Response::HTTP_OK, [], true);
         }
         return new JsonResponse(null, Response::HTTP_NOT_FOUND);
+    }
+
+    #[Route('/api/user/{id}', name: 'deleteUser', methods:['DELETE'])]
+    public function deleteUser(UserRepository $userRepository, EntityManagerInterface $em, int $id): JsonResponse
+    {
+        $user = $userRepository->find($id);
+        $em->remove($user);
+        $em->flush();
+        return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
 }
