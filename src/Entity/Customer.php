@@ -36,7 +36,7 @@ class Customer
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $createdAt = null;
 
-    #[ORM\OneToMany(mappedBy: 'customer', targetEntity: User::class)]
+    #[ORM\OneToMany(mappedBy: 'customer', targetEntity: User::class, orphanRemoval: true, cascade:['persist'])]
     private Collection $users;
 
     public function __construct()
@@ -138,5 +138,9 @@ class Customer
         }
 
         return $this;
+    }
+    public function __toString(): string
+    {
+        return $this->name;
     }
 }

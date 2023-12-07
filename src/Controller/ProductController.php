@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\Product;
 use App\Repository\ProductRepository;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -23,9 +24,8 @@ class ProductController extends AbstractController
     }
 
     #[Route('/api/product/{id}', name: 'product', methods:['GET'])]
-    public function getProductById(ProductRepository $productRepository, SerializerInterface $serializer, int $id): JsonResponse
+    public function getProductById(Product $product, SerializerInterface $serializer, int $id): JsonResponse
     {
-        $product = $productRepository->find($id);
         if($product){
             $jsonProduct = $serializer->serialize($product, 'json');
             return new JsonResponse($jsonProduct, Response::HTTP_OK, [], true);
