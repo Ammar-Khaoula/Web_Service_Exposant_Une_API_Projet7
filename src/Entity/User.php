@@ -6,6 +6,7 @@ use App\Repository\UserRepository;
 use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: UserRepository::class)]
 class User
@@ -18,14 +19,17 @@ class User
     
     #[ORM\Column(length: 100)]
     #[Groups(["getUsers"])]
+    #[Assert\NotBlank(message: "Le prénom est obligatoire")]
     private ?string $firstName = null;
 
     #[ORM\Column(length: 100)]
     #[Groups(["getUsers"])]
+    #[Assert\NotBlank(message: "Le nom obligatoire")]
     private ?string $lastName = null;
 
     #[ORM\Column(length: 255)]
     #[Groups(["getUsers"])]
+    #[Assert\NotBlank(message: "L'email' est obligatoire")]
     private ?string $email = null;
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
@@ -34,6 +38,7 @@ class User
     #[ORM\ManyToOne(inversedBy: 'users', cascade:['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(["getUsers"])]
+    #[Assert\NotBlank(message: "id de customer est obligatoire")]
     private ?Customer $customer = null;
 
     public function __construct()
