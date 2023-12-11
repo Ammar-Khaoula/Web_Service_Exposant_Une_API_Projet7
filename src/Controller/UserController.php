@@ -53,7 +53,10 @@ class UserController extends AbstractController
     {
         $data = $request->getContent();
         $user = $serializer->deserialize($data, User::class, 'json');
-        
+        $content = $request->toArray();
+        $idCustomer = $content['idCustomer'];
+        $user->setCustomer($customerRepo->find($idCustomer));
+
           // We check for errors
         $errors = $validator->validate($user);
             if ($errors->count() > 0) {
@@ -61,10 +64,6 @@ class UserController extends AbstractController
             }
 
         $em->persist($user); 
-
-        $content = $request->toArray();
-        $idCustomer = $content['idCustomer'];
-        $user->setCustomer($customerRepo->find($idCustomer));
         $em->flush();
 
         $jsonUser = $serializer->serialize($user, 'json', [ 'groups' => "getUsers"]);

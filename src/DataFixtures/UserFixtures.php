@@ -2,23 +2,38 @@
 
 namespace App\DataFixtures;
 
-use App\Entity\User;
 use App\Entity\Customer;
+use App\Entity\User;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
+use Faker;
 
 class UserFixtures extends Fixture
 {
+    private $PasswordHasher;
+    
+    public function __construct(UserPasswordHasherInterface $PasswordHasher)
+    {
+        $this->PasswordHasher = $PasswordHasher;
+    }
     public function load(ObjectManager $manager): void
     {
-        $listCustomer = [];
-        for ($i = 1; $i < 5; $i++) {
-            $customer = new Customer();
-            $customer->setName('nomDeClient : ' . $i);
-            $customer->setRole([$i]);
-            $customer->setEmail('emailDeClient : ' . $i);
-            $customer->setPassword('motDePasse : ' . $i);
+        $faker = Faker\Factory::create('fr_FR');
 
+        // Création d'un client "normal"
+        $customer = new Customer();
+        $customer->setEmail("customer@gmail.com");
+        $customer->setName("khaoula");
+        $customer->setPassword($this->PasswordHasher->hashPassword($customer, "123456"));
+        
+        $listCustomer = [];
+        for($i = 1; $i < 10; $i++){
+            $customer = new Customer();
+            $customer->setName($faker->company());
+            $customer->setEmail($faker->freeEmail());
+            $customer->setPassword($this->PasswordHasher->hashPassword($customer, "password"));
+            
             $manager->persist($customer);
             $listCustomer[] = $customer;
         }
@@ -29,7 +44,6 @@ class UserFixtures extends Fixture
             $user->setLastName('nomUser : ' . $i);
             $user->setEmail('emailUser : ' . $i);
             $user->setCustomer($listCustomer[array_rand($listCustomer)]);
-
             $manager->persist($user);
         }
 
