@@ -17,9 +17,35 @@ use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Component\Routing\Generator\UrlGeneratorInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use OpenApi\Annotations as OA;
 
 class UserController extends AbstractController
 {
+    /**
+     * @OA\Get(
+     *   tags={"Users"},
+     *   summary="Get all users owned by the current customer",
+     *   @OA\Response(response=200, description="All users owned by the current customer"),
+     *   @OA\Response(response=401, description="JWT unauthorized error"),
+     *   @OA\Response(response=404, description="No user found"),
+     *   @OA\Parameter(
+     *     name="page",
+     *     description="Current page number",
+     *     in="query",
+     *     required=false,
+     *     @OA\Schema(type="integer")
+     *   ),
+     *   @OA\Parameter(
+     *     name="limit",
+     *     description="Limit items per page",
+     *     in="query",
+     *     required=false,
+     *     @OA\Schema(type="integer")
+     *   )
+     * )
+     */
     #[Route('/api/users', name: 'users', methods:['GET'])]
     public function getAllUser(UserRepository $userRepository, SerializerInterface $serializer, Request $request, TagAwareCacheInterface $cache): JsonResponse
     {
@@ -37,6 +63,19 @@ class UserController extends AbstractController
         $jsonUserList = $serializer->serialize($userList, 'json', $context);
         return new JsonResponse($jsonUserList, Response::HTTP_OK, [], true);
     }
+     /**
+     * @OA\Get(
+     *   tags={"Users"},
+     *   summary="Get a user by ID",
+     *   @OA\Response(response=200, description="User details"),
+     *   @OA\Response(response=401, description="JWT unauthorized error"),
+     *   @OA\Response(response=404, description="No user found with this ID"),
+     *   @OA\PathParameter(
+     *     name="id",
+     *     description="ID of the user you want to recover"
+     *   )
+     * )
+     */
     #[Route('/api/user/{id}', name: 'user', methods:['GET'])]
     public function getUserById(UserRepository $userRepository, SerializerInterface $serializer, int $id): JsonResponse
     {
@@ -48,7 +87,19 @@ class UserController extends AbstractController
         }
         return new JsonResponse(null, Response::HTTP_NOT_FOUND);
     }
-
+ /**
+     * @OA\Delete(
+     *   tags={"Users"},
+     *   summary="Delete a user by ID",
+     *   @OA\Response(response=204, description="User successfully deleted"),
+     *   @OA\Response(response=401, description="JWT unauthorized error"),
+     *   @OA\Response(response=404, description="No user found with this ID"),
+     *   @OA\PathParameter(
+     *     name="id",
+     *     description="ID of the user you want to delete"
+     *   )
+     * )
+     */
     #[Route('/api/user/{id}', name: 'deleteUser', methods:['DELETE'])]
     public function deleteUser(UserRepository $userRepository, EntityManagerInterface $em, TagAwareCacheInterface $cache, int $id): JsonResponse
     {
@@ -58,7 +109,35 @@ class UserController extends AbstractController
         $em->flush();
         return new JsonResponse(null, Response::HTTP_NO_CONTENT);
     }
-
+    /**
+     * @OA\Post(
+     *   tags={"Users"},
+     *   summary="Create a new user",
+     *   @OA\RequestBody(
+     *     required=true,
+     *     @OA\MediaType(
+     *       mediaType="application/json",
+     *       @OA\Schema(
+     *         type="object",
+     *       )
+     *     )
+     *   ),
+     *   @OA\Response(
+     *     response=201,
+     *     description="Created user",
+     *     @OA\JsonContent(
+     *       type="array",
+     *       @OA\Items(ref=@Model(type=User::class, groups={"getUsers"}))
+     *     )
+     *   ),
+     *   @OA\Response(response=400, description="JSON field validation failed"),
+     *   @OA\Response(
+     *     response=401,
+     *     description="JWT unauthorized error"
+     *   ),
+     *   @OA\Response(response=500, description="JSON syntax error or no JSON sent in the request body"),
+     * )
+     */
     #[Route('/api/users', name: 'addUser', methods:['POST'])]
     public function createUser(Request $request, EntityManagerInterface $em, SerializerInterface $serializer,
     UrlGeneratorInterface $urlGeneratoer, CustomerRepository $customerRepo, ValidatorInterface $validator): JsonResponse
@@ -68,6 +147,7 @@ class UserController extends AbstractController
         $content = $request->toArray();
         $idCustomer = $content['idCustomer'];
         $user->setCustomer($customerRepo->find($idCustomer));
+        $user->setCreatedAt(new \DatetimeImmutable());
 
           // We check for errors
         $errors = $validator->validate($user);

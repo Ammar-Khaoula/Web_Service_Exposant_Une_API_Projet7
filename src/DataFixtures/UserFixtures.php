@@ -40,9 +40,10 @@ class UserFixtures extends Fixture
 
         for ($i = 1; $i < 20; $i++) {
             $user = new User();
-            $user->setFirstName('prenomUser : ' . $i);
-            $user->setLastName('nomUser : ' . $i);
-            $user->setEmail('emailUser : ' . $i);
+            $user->setFirstName($faker->firstName());
+            $user->setLastName($faker->lastName());
+            $user->setEmail($faker->freeEmail());
+            $user->setCreatedAt(\DateTimeImmutable::createFromMutable($faker->dateTimeBetween('-6 months', 'now')));
             $user->setCustomer($listCustomer[array_rand($listCustomer)]);
             $manager->persist($user);
         }
