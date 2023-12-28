@@ -12,9 +12,35 @@ use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Contracts\Cache\TagAwareCacheInterface;
 use JMS\Serializer\SerializerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Nelmio\ApiDocBundle\Annotation\Model;
+use Nelmio\ApiDocBundle\Annotation\Security;
+use OpenApi\Annotations as OA;
 
 class ProductController extends AbstractController
 {
+        /**
+     * @OA\Get(
+     *   tags={"Products"},
+     *   summary="Get all products",
+     *   @OA\Parameter(
+     *     name="page",
+     *     description="Current page number",
+     *     in="query",
+     *     required=false,
+     *     @OA\Schema(type="integer")
+     *   ),
+     *   @OA\Parameter(
+     *     name="limit",
+     *     description="Limit items per page",
+     *     in="query",
+     *     required=false,
+     *     @OA\Schema(type="integer")
+     *   ),
+     *   @OA\Response(response=200, description="All products"),
+     *   @OA\Response(response=401, description="JWT unauthorized error"),
+     *   @OA\Response(response=404, description="No product found")
+     * )
+     */
     #[Route('/api/products', name: 'products', methods:['GET'])]
     public function getAllProduct(ProductRepository $productRepository, SerializerInterface $serializer, Request $request, TagAwareCacheInterface $cache): JsonResponse
     {
@@ -33,7 +59,19 @@ class ProductController extends AbstractController
 
         return new JsonResponse($jsonProductList, Response::HTTP_OK, [], true);
     }
-
+    /**
+     * @OA\Get(
+     *   tags={"Products"},
+     *   summary="Get a product by ID",
+     *   @OA\PathParameter(
+     *     name="id",
+     *     description="ID of the product you want to recover"
+     *   ),
+     *   @OA\Response(response=200, description="Product details"),
+     *   @OA\Response(response=401, description="JWT unauthorized error"),
+     *   @OA\Response(response=404, description="No product found with this ID")
+     * )
+     */
     #[Route('/api/product/{id}', name: 'product', methods:['GET'])]
     public function getProductById(Product $product, SerializerInterface $serializer, int $id): JsonResponse
     {
