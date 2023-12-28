@@ -7,7 +7,7 @@ Créez un web service exposant une API
 
 
 
-## Environnement utilisé durant le développement
+## Les pré-requis techniques
 
 - Symfony 6.4
 - Composer 2.5.8
