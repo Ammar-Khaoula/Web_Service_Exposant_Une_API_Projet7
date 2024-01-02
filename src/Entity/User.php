@@ -10,25 +10,36 @@ use Symfony\Component\Validator\Constraints as Assert;
 use Hateoas\Configuration\Annotation as Hateoas;
 use OpenApi\Annotations as OA;
 
-    // ...
+// ...
 
 /**
- * @Hateoas\Relation(
+ *  @Hateoas\Relation(
  *      "self",
  *      href = @Hateoas\Route(
  *          "user",
  *          parameters = { "id" = "expr(object.getId())" }
  *      ),
- *      exclusion = @Hateoas\Exclusion(groups="getUsers")
+ *      exclusion = @Hateoas\Exclusion(groups="getUsers"),
+ *      attributes = {"method": "GET" }
  * )
  *
- *  * @Hateoas\Relation(
+ *  @Hateoas\Relation(
  *      "delete",
  *      href = @Hateoas\Route(
  *          "deleteUser",
  *          parameters = { "id" = "expr(object.getId())" }
  *      ),
- *      exclusion = @Hateoas\Exclusion(groups="getUsers")
+ *      exclusion = @Hateoas\Exclusion(groups="getUsers"),
+ *      attributes = {"method": "DELETE" }
+ * )
+ *  @Hateoas\Relation(
+ *      "all",
+ *      href = @Hateoas\Route(
+ *          "users",
+ *          absolute = true
+ *      ),
+ *      exclusion = @Hateoas\Exclusion(groups ="getUsers"),
+ *      attributes = {"methods": "GET" }
  * )
  *
  */
@@ -37,52 +48,52 @@ use OpenApi\Annotations as OA;
 class User
 {
     /**
- *   @OA\Property( type="integer")
- *        
-*/
+     *   @OA\Property( type="integer")
+     *        
+     */
     #[ORM\Id]
     #[ORM\GeneratedValue]
     #[ORM\Column]
     #[Groups(["getUsers"])]
     private ?int $id = null;
-/**
- *   @OA\Property( type="string")
- *        
-*/
+    /**
+     *   @OA\Property( type="string")
+     *        
+     */
     #[ORM\Column(length: 100)]
     #[Groups(["getUsers"])]
     #[Assert\NotBlank(message: "Le prénom est obligatoire")]
     private ?string $firstName = null;
-/**
- *   @OA\Property( type="string")
- *        
-*/
+    /**
+     *   @OA\Property( type="string")
+     *        
+     */
     #[ORM\Column(length: 100)]
     #[Groups(["getUsers"])]
     #[Assert\NotBlank(message: "Le nom obligatoire")]
     private ?string $lastName = null;
-/**
- *   @OA\Property( type="string")
- *        
-*/
+    /**
+     *   @OA\Property( type="string")
+     *        
+     */
     #[ORM\Column(length: 255)]
     #[Groups(["getUsers"])]
     #[Assert\NotBlank(message: "L'email' est obligatoire")]
     private ?string $email = null;
-/**
- *   @OA\Property(
+    /**
+     *   @OA\Property(
      *           type="string",
      *           format="date-time",
      *         )
- */
+     */
     #[ORM\Column(type: 'datetime_immutable')]
     #[Groups(["getUsers"])]
     private ?\DateTimeImmutable $createdAt;
-/**
- *   @OA\Property( type="integer")
- *        
-*/
-    #[ORM\ManyToOne(inversedBy: 'users', cascade:['persist'])]
+    /**
+     *   @OA\Property( type="integer")
+     *        
+     */
+    #[ORM\ManyToOne(inversedBy: 'users', cascade: ['persist'])]
     #[ORM\JoinColumn(nullable: false)]
     #[Groups(["getUsers"])]
     #[Assert\NotBlank(message: "id de customer est obligatoire")]
@@ -153,5 +164,4 @@ class User
 
         return $this;
     }
-    
 }

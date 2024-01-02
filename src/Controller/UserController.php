@@ -105,18 +105,24 @@ class UserController extends AbstractController
      * )
      */
     #[Route('/api/users', name: 'users', methods: ['GET'])]
-    public function getAllUser(Pagination $paginator, SerializerInterface $serializer, Request $request, TagAwareCacheInterface $cache): JsonResponse
+    public function getAllUser(Pagination $paginator, SerializerInterface $serializer, Request $request, TagAwareCacheInterface $cache, UserRepository $userRepository): JsonResponse
     {
-        $result = $paginator->paginate(
-            'SELECT user
-            FROM App\Entity\User user
-            WHERE user.customer = :id
-            ORDER BY user.id DESC',
-            ['id' => $this->getUser()->getId()]
-        );
-
+        $page = $request->get('page', 1);
+        $limit = $request->get('limit', 3);
+        $idCache = "getAllUsers-" . $page . "-" . $limit;
+        $data = $cache->get($idCache, function (ItemInterface $item) use ($paginator) {
+            echo ("l'element n'est pas encore en cache !\n");
+            $item->tag("userCache");
+            return $paginator->paginate(
+                'SELECT user
+                FROM App\Entity\User user
+                WHERE user.customer = :id
+                ORDER BY user.id DESC',
+                ['id' => $this->getUser()]
+            );
+        });
         $context = SerializationContext::create()->setGroups(["getUsers"]);
-        $jsonUserList = $serializer->serialize($result, 'json', $context);
+        $jsonUserList = $serializer->serialize($data, 'json', $context);
         return new JsonResponse($jsonUserList, Response::HTTP_OK, [], true);
     }
     /**
@@ -135,9 +141,9 @@ class UserController extends AbstractController
     #[Route('/api/user/{id}', name: 'user', methods: ['GET'])]
     public function getUserById(?User $user, SerializerInterface $serializer): JsonResponse
     {
-        
+
         $this->userNotExist($user);
-        $this->isNotOwner('USER_SHOW', $user, 'You are not authorized to see this content');
+        $this->isNotOwner('USER', $user, 'You are not authorized to see this content');
         if ($user) {
             $context = SerializationContext::create()->setGroups(["getUsers"]);
             $jsonUser = $serializer->serialize($user, 'json', $context);
@@ -159,11 +165,11 @@ class UserController extends AbstractController
      * )
      */
     #[Route('/api/user/{id}', name: 'deleteUser', methods: ['DELETE'])]
-    public function deleteUser(?User $user, EntityManagerInterface $em, TagAwareCacheInterface $cache, int $id): JsonResponse
+    public function deleteUser(?User $user, EntityManagerInterface $em, int $id): JsonResponse
     {
-        $cache->invalidateTags(["userCache"]);
+        //$cache->invalidateTags(["userCache"]);
         $this->userNotExist($user);
-        $this->isNotOwner('USER_DELETE', $user, 'You are not authorized to delete this content');
+        $this->isNotOwner('DELETEUSER', $user, 'You are not authorized to delete this content');
 
         $em->remove($user);
         $em->flush();

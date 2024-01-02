@@ -21,14 +21,14 @@ class ExceptionSubscriber implements EventSubscriberInterface
             ];
 
             $event->setResponse(new JsonResponse($data));
-      } else {
+        } else {
             $data = [
-                'status' => 500, // Le status n'existe pas car ce n'est pas une exception HTTP, donc on met 500 par défaut.
+                'status' => 500, // The status does not exist because it is not an HTTP exception, so we put 500 by default.
                 'message' => $exception->getMessage()
             ];
 
             $event->setResponse(new JsonResponse($data));
-      }
+        }
     }
 
     public static function getSubscribedEvents(): array
