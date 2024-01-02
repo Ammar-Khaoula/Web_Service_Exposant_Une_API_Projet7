@@ -22,7 +22,7 @@ class Customer implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column(length: 100)]
     #[Groups(["getUsers"])]
-    private ?string $name = null; 
+    private ?string $name = null;
 
     #[ORM\Column(length: 180, unique: true)]
     private ?string $email = null;
@@ -36,7 +36,7 @@ class Customer implements UserInterface, PasswordAuthenticatedUserInterface
 
     #[ORM\Column]
     private ?string $password = null;
-    #[ORM\OneToMany(mappedBy: 'customer', targetEntity: User::class, orphanRemoval: true, cascade:['persist'])]
+    #[ORM\OneToMany(mappedBy: 'customer', targetEntity: User::class, orphanRemoval: true, cascade: ['persist'])]
     private Collection $users;
 
     public function __construct()
@@ -86,7 +86,8 @@ class Customer implements UserInterface, PasswordAuthenticatedUserInterface
      *
      * @return string
      */
-    public function getUsername(): string {
+    public function getUsername(): string
+    {
         return $this->getUserIdentifier();
     }
 
@@ -165,5 +166,4 @@ class Customer implements UserInterface, PasswordAuthenticatedUserInterface
     {
         return $this->name;
     }
-
 }

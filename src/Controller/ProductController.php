@@ -18,7 +18,7 @@ use OpenApi\Annotations as OA;
 
 class ProductController extends AbstractController
 {
-        /**
+    /**
      * @OA\Get(
      *   tags={"Products"},
      *   summary="Get all products",
@@ -41,7 +41,7 @@ class ProductController extends AbstractController
      *   @OA\Response(response=404, description="No product found")
      * )
      */
-    #[Route('/api/products', name: 'products', methods:['GET'])]
+    #[Route('/api/products', name: 'products', methods: ['GET'])]
     public function getAllProduct(ProductRepository $productRepository, SerializerInterface $serializer, Request $request, TagAwareCacheInterface $cache): JsonResponse
     {
         $page = $request->get('page', 1);
@@ -49,7 +49,7 @@ class ProductController extends AbstractController
 
         $idCache = "getAllProduct-" . $page . "-" . $limit;
         $productList = $cache->get($idCache, function (ItemInterface $item) use ($productRepository, $page, $limit) {
-            echo("l'element n'est pas encore en cache !\n");
+            echo ("l'element n'est pas encore en cache !\n");
             $item->tag("productCache");
             return $productRepository->findAllWithPagination($page, $limit);
         });
@@ -72,14 +72,13 @@ class ProductController extends AbstractController
      *   @OA\Response(response=404, description="No product found with this ID")
      * )
      */
-    #[Route('/api/product/{id}', name: 'product', methods:['GET'])]
+    #[Route('/api/product/{id}', name: 'product', methods: ['GET'])]
     public function getProductById(Product $product, SerializerInterface $serializer, int $id): JsonResponse
     {
-        if($product){
+        if ($product) {
             $jsonProduct = $serializer->serialize($product, 'json');
             return new JsonResponse($jsonProduct, Response::HTTP_OK, [], true);
         }
         return new JsonResponse(null, Response::HTTP_NOT_FOUND);
-        
     }
 }

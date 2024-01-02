@@ -7,8 +7,6 @@ use Doctrine\DBAL\Types\Types;
 use Doctrine\ORM\Mapping as ORM;
 use Hateoas\Configuration\Annotation as Hateoas;
 
-    // ...
-
 /**
  * @Hateoas\Relation(
  *      "self",
@@ -46,7 +44,7 @@ class Product
 
     #[ORM\Column(type: Types::DATETIME_MUTABLE)]
     private ?\DateTimeInterface $datePublish = null;
-    
+
     public function __construct()
     {
         $this->setDatePublish(new \DateTimeImmutable());
