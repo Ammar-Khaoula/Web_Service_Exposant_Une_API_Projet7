@@ -107,20 +107,13 @@ class UserController extends AbstractController
     #[Route('/api/users', name: 'users', methods: ['GET'])]
     public function getAllUser(Pagination $paginator, SerializerInterface $serializer, Request $request, TagAwareCacheInterface $cache, UserRepository $userRepository): JsonResponse
     {
-        $page = $request->get('page', 1);
-        $limit = $request->get('limit', 3);
-        $idCache = "getAllUsers-" . $page . "-" . $limit;
-        $data = $cache->get($idCache, function (ItemInterface $item) use ($paginator) {
-            echo ("l'element n'est pas encore en cache !\n");
-            $item->tag("userCache");
-            return $paginator->paginate(
-                'SELECT user
-                FROM App\Entity\User user
-                WHERE user.customer = :id
-                ORDER BY user.id DESC',
-                ['id' => $this->getUser()]
-            );
-        });
+        $data  = $paginator->paginate(
+            'SELECT user
+            FROM App\Entity\User user
+            WHERE user.customer = :id
+            ORDER BY user.id DESC',
+            ['id' => $this->getUser()]
+        );
         $context = SerializationContext::create()->setGroups(["getUsers"]);
         $jsonUserList = $serializer->serialize($data, 'json', $context);
         return new JsonResponse($jsonUserList, Response::HTTP_OK, [], true);
